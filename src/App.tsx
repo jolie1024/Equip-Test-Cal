@@ -171,15 +171,18 @@ export default function App() {
   }, [activeSlot, selectedShip, equipped, equipments]);
 
   const combinedStats = useMemo(() => {
-    const map: Record<string, { baseName: string, type: number, value: number }> = {};
+    const map: Record<string, { baseName: string, type: number, value: number, order: number }> = {};
+    let orderCounter = 0;
     
-    Object.values(equipped).forEach(eqId => {
+    [1, 2, 3, 4, 5, 6].forEach(slot => {
+      const eqId = equipped[slot];
+      if (eqId === undefined) return;
       const eq = equipments.find(e => e.id === eqId);
       if (!eq) return;
       eq.attrs.forEach(attr => {
         const key = `${attr.baseName}_${attr.type}`;
         if (!map[key]) {
-          map[key] = { baseName: attr.baseName, type: attr.type, value: 0 };
+          map[key] = { baseName: attr.baseName, type: attr.type, value: 0, order: orderCounter++ };
         }
         map[key].value += attr.value;
       });
@@ -187,6 +190,7 @@ export default function App() {
 
     return Object.values(map)
       .filter(stat => Math.abs(parseFloat(stat.value.toFixed(4))) > 0)
+      .sort((a,b) => a.order - b.order)
       .map(stat => {
         const sumSign = Math.sign(stat.value);
         const bSign = buffSignMap[stat.baseName] || sumSign; 
@@ -201,8 +205,7 @@ export default function App() {
           type: stat.type,
           value: stat.value
         };
-      })
-      .sort((a,b) => a.name.localeCompare(b.name));
+      });
   }, [equipped, equipments, buffSignMap]);
 
   return (
