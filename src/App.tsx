@@ -214,8 +214,8 @@ export default function App() {
         
         {/* Header */}
         <header className="border-b border-zinc-800 pb-6 mt-2">
-          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Naval Loadout</h1>
-          <p className="text-zinc-500 text-sm md:text-base mt-2">Configure ship equipment and calculate net attributes.</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">WOWSBlitz Calculator</h1>
+          <p className="text-zinc-500 text-sm md:text-base mt-2">The list only includes Standard Lv3 equipment.</p>
         </header>
 
         {/* 1. SHIP SELECTION */}
