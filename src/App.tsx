@@ -55,7 +55,8 @@ const CSV_DATA = `ID,Slot,Limit_ship_type,Value_ID_1,Value_Type_1,Value_1,Value_
 1138,5,,Torpedo Damage Reduction+,1,0.19,Fire and Flooding Resistance+,1,0.14,Traverse Acceleration-,1,-0.04,Traverse Deceleration-,1,-0.04,,,
 1141,6,,Damage Reduction+,0,0.05,Power System Survivability+,1,0.14,Fire and Flooding Resistance-,0,-0.04,,,,,,
 1144,6,,Steering Gear Repair Time+,1,-0.4,Power System Repair Time+,1,-0.4,Main Battery Repair Time+,1,-0.4,Torpedo Tube Repair Time+,1,-0.4,Max Traverse Speed-,1,-0.03
-1147,6,,Main Battery Survivability+,1,0.24,Secondary Battery Survivability+,1,0.24,Secondary Battery (Auto) Survivability+,1,0.24,Torpedo Tube Survivability+,1,0.24,Fire and Flooding Time-,1,0.05`;
+1147,6,,Main Battery Survivability+,1,0.24,Secondary Battery Survivability+,1,0.24,Secondary Battery (Auto) Survivability+,1,0.24,Torpedo Tube Survivability+,1,0.24,Fire and Flooding Time-,1,0.05
+1150,4,2,Surface Detection+,1,-0.065,Power System Survivability-,1,-0.1,,,,,,,,,`;
 
 type ShipType = 1 | 2 | 3 | 4;
 
@@ -118,6 +119,18 @@ export default function App() {
   const [selectedShip, setSelectedShip] = useState<ShipType | null>(null);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
   const [equipped, setEquipped] = useState<Record<number, number>>({});
+  const [viewMode, setViewMode] = useState<'configurator' | 'equipList'>('configurator');
+  
+  const [listSlotFilter, setListSlotFilter] = useState<number | null>(null);
+  const [listShipFilter, setListShipFilter] = useState<ShipType | null>(null);
+
+  const filteredEquipmentsList = useMemo(() => {
+    return equipments.filter(eq => {
+      if (listSlotFilter !== null && !eq.slots.includes(listSlotFilter)) return false;
+      if (listShipFilter !== null && !eq.shipLimits.includes(listShipFilter)) return false;
+      return true;
+    });
+  }, [equipments, listSlotFilter, listShipFilter]);
 
   const handleShipSelect = (ship: ShipType) => {
     setSelectedShip(ship);
@@ -213,14 +226,106 @@ export default function App() {
       <div className="max-w-5xl mx-auto flex flex-col gap-8 md:gap-10">
         
         {/* Header */}
-        <header className="border-b border-zinc-800 pb-6 mt-2">
-          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">WOWSBlitz Calculator</h1>
-          <p className="text-zinc-500 text-sm md:text-base mt-2">The list only includes Standard Lv3 equipment.</p>
+        <header className="border-b border-zinc-800 pb-6 mt-2 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">WOWSBlitz Calculator</h1>
+            <p className="text-zinc-500 text-sm md:text-base mt-2">The list only includes Standard Lv3 equipment.</p>
+          </div>
+          <button 
+            onClick={() => setViewMode(viewMode === 'configurator' ? 'equipList' : 'configurator')}
+            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold rounded-lg text-sm transition-colors border border-zinc-700 hover:border-zinc-600 whitespace-nowrap"
+          >
+            {viewMode === 'configurator' ? 'Equip List' : 'Calculator'}
+          </button>
         </header>
 
-        {/* 1. SHIP SELECTION */}
-        <section>
-          <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">1. Select Class</div>
+        {viewMode === 'equipList' ? (
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col md:flex-row gap-6 bg-zinc-900/50 border border-zinc-800/80 p-5 rounded-2xl shadow-sm">
+               <div className="flex-1 flex flex-col gap-3">
+                 <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Filter by Slot</span>
+                 <div className="flex flex-wrap gap-2">
+                    <button 
+                      onClick={() => setListSlotFilter(null)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${listSlotFilter === null ? 'bg-zinc-200 text-black shadow' : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:bg-zinc-700/50 hover:text-white'}`}
+                    >All</button>
+                    {[1,2,3,4,5,6].map(slot => (
+                      <button 
+                        key={slot}
+                        onClick={() => setListSlotFilter(slot)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${listSlotFilter === slot ? 'bg-zinc-200 text-black shadow' : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:bg-zinc-700/50 hover:text-white'}`}
+                      >Slot 0{slot}</button>
+                    ))}
+                 </div>
+               </div>
+               <div className="w-px bg-zinc-800/80 hidden md:block"></div>
+               <div className="flex-1 flex flex-col gap-3">
+                 <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Filter by Class</span>
+                 <div className="flex flex-wrap gap-2">
+                    <button 
+                      onClick={() => setListShipFilter(null)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${listShipFilter === null ? 'bg-zinc-200 text-black shadow' : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:bg-zinc-700/50 hover:text-white'}`}
+                    >All</button>
+                    {([1,2,3,4] as ShipType[]).map(ship => (
+                      <button 
+                        key={ship}
+                        onClick={() => setListShipFilter(ship)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${listShipFilter === ship ? 'bg-zinc-200 text-black shadow' : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:bg-zinc-700/50 hover:text-white'}`}
+                      >{shipNames[ship].split('(')[1].replace(')', '')}</button>
+                    ))}
+                 </div>
+               </div>
+            </div>
+
+            <section className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
+               <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-zinc-300">
+                     <thead className="bg-zinc-950 text-zinc-500 border-b border-zinc-800 text-xs uppercase tracking-widest">
+                        <tr>
+                           <th className="px-6 py-4 font-medium whitespace-nowrap">ID</th>
+                           <th className="px-6 py-4 font-medium whitespace-nowrap">Slots</th>
+                           <th className="px-6 py-4 font-medium whitespace-nowrap">Ship Limit</th>
+                           <th className="px-6 py-4 font-medium">Attributes</th>
+                        </tr>
+                     </thead>
+                     <tbody className="divide-y divide-zinc-800/50">
+                        {filteredEquipmentsList.map(eq => (
+                         <tr key={eq.id} className="hover:bg-zinc-800/60 even:bg-zinc-800/20 transition-colors">
+                            <td className="px-6 py-5 font-bold text-white whitespace-nowrap">#{eq.id}</td>
+                            <td className="px-6 py-5 whitespace-nowrap">
+                              <div className="flex gap-1.5 flex-wrap">
+                                {eq.slots.map(s => <span key={s} className="px-2 py-0.5 bg-zinc-800 rounded text-xs">Slot 0{s}</span>)}
+                              </div>
+                            </td>
+                            <td className="px-6 py-5 whitespace-nowrap text-zinc-400">
+                              <div className="flex gap-1.5 flex-wrap">
+                                {eq.shipLimits.map(s => <span key={s} className="px-2 py-0.5 border border-zinc-800 rounded text-xs">{shipNames[s as ShipType].split('(')[1].replace(')', '')}</span>)}
+                              </div>
+                            </td>
+                            <td className="px-6 py-5">
+                               <div className="flex flex-wrap gap-2">
+                                  {eq.attrs.map((attr, idx) => (
+                                     <div key={idx} className="flex items-center text-xs gap-2 px-2.5 py-1.5 bg-zinc-950/50 border border-zinc-800 rounded-lg">
+                                       <span className="text-zinc-400 font-medium whitespace-nowrap">{attr.rawName}</span>
+                                       <span className={`font-bold shrink-0 ${attr.isBuff ? 'text-emerald-400' : 'text-red-400'}`}>
+                                         {formatValue(attr.value, attr.type)}
+                                       </span>
+                                     </div>
+                                  ))}
+                               </div>
+                            </td>
+                         </tr>
+                      ))}
+                   </tbody>
+                </table>
+               </div>
+            </section>
+          </div>
+        ) : (
+          <>
+            {/* 1. SHIP SELECTION */}
+            <section>
+              <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">1. Select Class</div>
           <div className="flex flex-wrap gap-3">
             {([1,2,3,4] as ShipType[]).map(id => (
                <button 
@@ -349,6 +454,8 @@ export default function App() {
           </div>
 
         </div>
+        </>
+        )}
       </div>
     </div>
   );
