@@ -56,7 +56,7 @@ const CSV_DATA = `ID,Slot,Limit_ship_type,Value_ID_1,Value_Type_1,Value_1,Value_
 1141,6,,Damage Reduction+,0,0.05,Power System Survivability+,1,0.14,Fire and Flooding Resistance-,0,-0.04,,,,,,
 1144,6,,Steering Gear Repair Time+,1,-0.4,Power System Repair Time+,1,-0.4,Main Battery Repair Time+,1,-0.4,Torpedo Tube Repair Time+,1,-0.4,Max Traverse Speed-,1,-0.03
 1147,6,,Main Battery Survivability+,1,0.24,Secondary Battery Survivability+,1,0.24,Secondary Battery (Auto) Survivability+,1,0.24,Torpedo Tube Survivability+,1,0.24,Fire and Flooding Time-,1,0.05
-1150,4,2,Surface Detection+,1,-0.065,Power System Survivability-,1,-0.1,,,,,,,,,`;
+1150,4,2,Surface Detection+,1,-0.05,Power System Survivability-,1,-0.1,,,,,,,,,`;
 
 type ShipType = 1 | 2 | 3 | 4;
 
